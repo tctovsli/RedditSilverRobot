@@ -39,7 +39,7 @@ while True:
     try:
         print('Checking the last 10 messages from now %s' % (datetime.now()))
         start_stream()
-        time.sleep(10)
+        time.sleep(5)
     except Exception as e:
         print("> %s - Connection lost. Restarting in 3 seconds... %s" % (datetime.now(), e))
         time.sleep(3)

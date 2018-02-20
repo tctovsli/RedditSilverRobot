@@ -25,6 +25,9 @@ def validate_comment(message):
             # Already in the queue, don't add.
             if queue.contains(message['_id']) or message['_id'] in [x[0] for x in data]:
                 return False
+            if message['reactions'][msg_reaction]['usernames'][0] == get_receiver(message):
+                _register_comment(message, "Cannot respond to self.")
+                return False
             return True
         return False
     return False
@@ -68,19 +71,18 @@ def reply(comment):
     reply_message = _make_message(comment)
     timestr = str(time.localtime()[3]) + ":" + str(time.localtime()[4])
     try:
-        rocket.chat_post_message('This was a triumph', channel='noise')
-        #comment.reply(reply_message)
-        print("> %s - Posted: %s -> " % (timestr, comment.author.name) + get_receiver(comment))
+        rocket.chat_post_message(reply_message, channel='noise', alias='Botstøtte')
+        print("> %s - Posted: %s -> " % (timestr, comment['u']['username']) + get_receiver(comment))
         _register_comment(comment, "Posted!")
     except Exception as comment_exception:
-        print("> %s - Unable to post comment: %s -> " % (timestr, comment.author.name) + get_receiver(comment))
+        print("> %s - Unable to post comment: %s -> " % (timestr, comment['reactions'][msg_reaction]['usernames'][0]) + get_receiver(comment) + "Reason: %s" % comment_exception)
         _register_comment(comment, "Unable to post. Reason: %s" % comment_exception)
 
 
 def _register_comment(comment, result):
     # Stores data in a list of tuples
     # (ID, (User, Receiver, Time, Result))
-    tup = (comment['_id'], (comment['u']['username'], get_receiver(comment), time.localtime(), result))
+    tup = (comment['_id'], (comment['reactions'][msg_reaction]['usernames'][0], get_receiver(comment), time.localtime(), result))
     data = pickle.load(open("RSRData.p", 'rb'))
     if data:
         data.append(tup)
@@ -90,7 +92,7 @@ def _register_comment(comment, result):
 
 
 def get_receiver(message):
-    return message['reactions'][msg_reaction]['usernames']
+    return message['u']['username']
 
 def _silver_counter(comment):
     data_entries = pickle.load(open('RSRData.p', 'rb'))
@@ -106,16 +108,17 @@ def _silver_counter(comment):
 
 
 def _make_message(comment):
+    giver_name = rocket.users_info(comment['reactions'][msg_reaction]['usernames'][0])
     silver_count = _silver_counter(comment)
     if silver_count == 1:
         s = ""
     else:
         s = "s"
-    message = "Hei, " + get_receiver(comment)
-    message += "! \n\n"
-    #message += "/u/" + get_receiver(comment) + " has received silver " + str(silver_count)
-    #message += " time%s. (given by /u/" % s
-    #message += comment.author.name + ") "
+    message = "Hei, @" + get_receiver(comment)
+    message += "! \n"
+    message += str(giver_name) + " har gitt deg HBcoin. Du har til sammen " + str(silver_count)
+    message += " HBcoin%s." % s
+    #message += comment['reactions'][msg_reaction]['usernames'][0] + ") "
     #message += "__[info](http://reddit.com/r/RedditSilverRobot)__" + comment.subreddit.display_name
     return message
 
@@ -149,4 +152,5 @@ if __name__ == '__main__':
         if queue and len(queue) > 0:
             comment_id = queue.dequeue()
             pickle.dump(queue, open(file, 'wb'))
-#            reply(praw.models.Comment(rsr, comment_id))
+            message = rocket.chat_get_message(comment_id).json()['message']
+            reply(message)
