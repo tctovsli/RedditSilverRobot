@@ -154,3 +154,4 @@ if __name__ == '__main__':
             pickle.dump(queue, open(file, 'wb'))
             message = rocket.chat_get_message(comment_id).json()['message']
             reply(message)
+        time.sleep(3)
