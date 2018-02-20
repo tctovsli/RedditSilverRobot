@@ -20,7 +20,7 @@ bots = [RedditSilverRobot]
 
 
 def start_stream():
-    messages = rocket.channels_history('tznw8qNDK94F3nf3u', count=10).json()  # Henter 10 siste meldinger på #bot-warz
+    messages = rocket.channels_history('GENERAL', count=100).json()  # Alternativt henter 100 siste meldinger på #bot-warz - tznw8qNDK94F3nf3u
     for comment in messages['messages']:
         for bot in bots:
             if bot.validate_comment(comment):
@@ -37,7 +37,7 @@ def start_stream():
 
 while True:
     try:
-        print('Checking the last 10 messages from now %s' % (datetime.now()))
+        print('Checking the last 100 messages from now %s' % (datetime.now()))
         start_stream()
         time.sleep(5)
     except Exception as e:

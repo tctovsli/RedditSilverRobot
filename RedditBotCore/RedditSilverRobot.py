@@ -8,7 +8,7 @@ from rocketchat_API.rocketchat import RocketChat
 rocket = RocketChat('johanna', 'Passord1', server_url='http://rocketchat-rocket-chat.cluster.poc')
 
 file = 'RSRQueue.p'
-msg_reaction = ':grinning:'
+msg_reaction = ':moneybag:'
 banned_subs = [""]
 
 def validate_comment(message):
@@ -17,7 +17,7 @@ def validate_comment(message):
         if msg_reaction in message['reactions']:
  #           poster = message['reactions'][msg_reaction]['usernames']
  #           msg_text = message['msg']
-            print("Message ID %s had the emoji %s on the following message: %s" % (message['_id'], message['reactions'], message['msg']))
+ #           print("Message ID %s had the emoji %s on the following message: %s" % (message['_id'], message['reactions'], message['msg']))
             queue = pickle.load(open(file, "rb"))
             if not queue:
                queue = Queue()
@@ -71,7 +71,7 @@ def reply(comment):
     reply_message = _make_message(comment)
     timestr = str(time.localtime()[3]) + ":" + str(time.localtime()[4])
     try:
-        rocket.chat_post_message(reply_message, channel='noise', alias='Botstøtte')
+        rocket.chat_post_message(reply_message, channel='GENERAL', alias='Botstøtte', avatar='http://marisa-hamanako.com/wp-content/uploads/2017/02/adult-top-coin-coloring-pages-gallery-images-dashah-beauty-quarter-coin-coloring-page-1.jpg')
         print("> %s - Posted: %s -> " % (timestr, comment['u']['username']) + get_receiver(comment))
         _register_comment(comment, "Posted!")
     except Exception as comment_exception:
@@ -108,7 +108,7 @@ def _silver_counter(comment):
 
 
 def _make_message(comment):
-    giver_name = rocket.users_info(comment['reactions'][msg_reaction]['usernames'][0])
+    giver_name = rocket.users_info(username=comment['reactions'][msg_reaction]['usernames'][0]).json()['user']['name']
     silver_count = _silver_counter(comment)
     if silver_count == 1:
         s = ""
