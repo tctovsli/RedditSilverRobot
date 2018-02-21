@@ -72,7 +72,7 @@ def reply(comment):
     timestr = str(time.localtime()[3]) + ":" + str(time.localtime()[4])
     try:
         rocket.chat_post_message(reply_message, channel='GENERAL', alias='Botstøtte', avatar='http://marisa-hamanako.com/wp-content/uploads/2017/02/adult-top-coin-coloring-pages-gallery-images-dashah-beauty-quarter-coin-coloring-page-1.jpg')
-        print("> %s - Posted: %s -> " % (timestr, comment['u']['username']) + get_receiver(comment))
+        print("> %s - Posted: %s -> " % (timestr, comment['reactions'][msg_reaction]['usernames'][0]) + get_receiver(comment))
         _register_comment(comment, "Posted!")
     except Exception as comment_exception:
         print("> %s - Unable to post comment: %s -> " % (timestr, comment['reactions'][msg_reaction]['usernames'][0]) + get_receiver(comment) + "Reason: %s" % comment_exception)
